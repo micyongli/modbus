@@ -6,11 +6,8 @@ import { Route, BrowserRouter as Router, withRouter, Redirect } from 'react-rout
 import Login from './Login';
 import Home from './Home';
 
-class App extends React.Component {
+class App extends React.PureComponent {
 
-    componentWillMount() {
-        console.log(this.props)
-    }
 
     render() {
         return (

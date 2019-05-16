@@ -1,7 +1,14 @@
 import React from 'react';
-import { Input, InputLabel, Paper, Table, TableBody, TableCell, TableFooter, TableRow, TableHead, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+import { Input, Fab, Paper, Table, TableBody, TableCell, TableFooter, TableRow, TableHead, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
+import EditIcon from '@material-ui/icons/Edit';
 class DtuList extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
 
     state = {
         data: [],
@@ -11,7 +18,7 @@ class DtuList extends React.Component {
     };
 
     componentWillMount() {
-
+        console.log(this.props.title)
         this.loadData();
 
     }
@@ -113,7 +120,7 @@ class DtuList extends React.Component {
         const { data, openDlg, edited, v } = this.state;
         return (
 
-            <Paper>
+            <Paper style={{ paddingTop: '8px' }}>
 
                 <Table>
                     <TableHead>
@@ -131,18 +138,25 @@ class DtuList extends React.Component {
                                         <TableCell align={'center'}>{v['device_id']}</TableCell>
                                         <TableCell align={'center'}>{v['create_time']}</TableCell>
                                         <TableCell align={'center'}>
-                                            <Button onClick={e => {
+                                            <Fab onClick={e => {
                                                 const id = v['device_id'];
                                                 if (confirm('确定要删除？')) {
                                                     this.delete(id);
                                                 }
-                                            }}>删除</Button>
+                                            }} size="small" color="default" aria-label="Edit" >
+                                                <RemoveIcon />
+                                            </Fab>
+                                            <Fab
+                                                
+                                                style={{marginLeft:'8px'}}
+                                                onClick={e => {
+                                                    const id = v['device_id'];
+                                                    this.currentDTU = id;
+                                                    this.setState({ v: id, edited: true, openDlg: true });
+                                                }} size="small" color="default" aria-label="Remove" >
+                                                <EditIcon />
+                                            </Fab>
 
-                                            <Button onClick={e => {
-                                                const id = v['device_id'];
-                                                this.currentDTU = id;
-                                                this.setState({ v: id, edited: true, openDlg: true })
-                                            }}>编辑</Button>
                                         </TableCell>
                                     </TableRow>
                                 );
@@ -155,7 +169,10 @@ class DtuList extends React.Component {
                             <TableCell align={'center'}>查询: {data.length} 行</TableCell>
                             <TableCell align={'center'}></TableCell>
                             <TableCell align={'center'}>
-                                <Button onClick={e => this.setState({ edited: false, openDlg: true })}>添行</Button>
+
+                                <Fab onClick={e => this.setState({ edited: false, openDlg: true })} size="small" color="secondary" aria-label="Add" >
+                                    <AddIcon />
+                                </Fab>
                             </TableCell>
                         </TableRow>
                     </TableFooter>
