@@ -6,8 +6,10 @@ import { Route, BrowserRouter as Router, withRouter, Redirect } from 'react-rout
 import Login from './Login';
 import Home from './Home';
 
-class App extends React.PureComponent {
-
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+    }
 
     render() {
         return (
@@ -23,4 +25,4 @@ class App extends React.PureComponent {
 
 const AppRoot = withRouter(App);
 
-ReactDOM.render(<Router><SnackbarProvider hideIconVariant={false}><AppRoot /></SnackbarProvider></Router>, document.getElementById('app'));
+ReactDOM.render(<Router> <SnackbarProvider hideIconVariant={true}><AppRoot /></SnackbarProvider></Router>, document.getElementById('app'));

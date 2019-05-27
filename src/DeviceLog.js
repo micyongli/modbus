@@ -8,9 +8,7 @@ class DeviceLog extends React.Component {
     };
 
     componentWillMount() {
-
         this.loadData();
-
     }
 
     loadData = () => {

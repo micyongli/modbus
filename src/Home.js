@@ -1,6 +1,8 @@
 import React from 'react';
-import { Toolbar, Grid, AppBar, Avatar, Drawer, IconButton, List, ListItem, ListItemText, Tooltip } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu'
+import { Toolbar, Grid, AppBar, Avatar, Drawer, IconButton, List, ListItem, ListItemText, Tooltip, ListItemIcon } from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/Menu';
+import ListSharpIcon from '@material-ui/icons/ListSharp';
+import DevicesIcon from '@material-ui/icons/DevicesSharp';
 import { Route, BrowserRouter as Router, Switch, withRouter } from 'react-router-dom';
 import DtuList from './DtuList';
 import DeviceLog from './DeviceLog';
@@ -8,11 +10,9 @@ import { withSnackbar } from 'notistack';
 
 import UserInfo from './UserInfo';
 
-const routeMap = {
-    '/h/register': '设备注册',
-    '/h/user': '用户信息',
-    '/h': '线上日志'
-};
+import './Home.css';
+
+import { getTitleByPath } from './RouteConfig';
 
 
 class Home extends React.Component {
@@ -29,13 +29,18 @@ class Home extends React.Component {
 
 
     componentWillMount() {
-        // this.getUser();
+        console.log('home will mount')
         const { location } = this.props.history;
         const { pathname } = location;
-        const mapTile = routeMap[pathname];
+        const mapTile = getTitleByPath(pathname);
         if (mapTile)
             this.setTitle(mapTile);
     }
+
+    shouldComponentUpdate(p, s) {
+        return s.title !== this.state.title || s.displayDrawer !== this.state.displayDrawer;
+    }
+
 
     getUser = () => {
         return fetch('/api/user', { method: 'get', credentials: 'include', headers: { 'content-type': 'application/json' } })
@@ -86,54 +91,64 @@ class Home extends React.Component {
 
     jump = (url, desc) => {
         this.props.history.push(url);
-        if (desc) {
-            this.setTitle(desc);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { location } = nextProps;
+        const newTitle = getTitleByPath(location.pathname);
+        if (newTitle && this.state.title !== newTitle) {
+            this.setTitle(newTitle);
         }
     }
 
+    menuItemClick = (route) => {
+        this.jump(route);
+        this.drawerAction(false);
+    }
+
+
     render() {
-        const { title } = this.state;
+        const { title, displayDrawer } = this.state;
+        console.log('render home ', new Date());
         return (
             <Grid container justify={'center'}>
                 <AppBar>
                     <Toolbar>
                         <IconButton onClick={e => this.drawerAction(true)}>
-                            <MenuIcon style={{ color: 'rgba(255,255,255,0.6)' }} />
+                            <MenuIcon className={'toolbar-text-color'} />
                         </IconButton>
                         <h4 style={{ marginLeft: '16px' }} color={'inherited'}>{title}</h4>
                         <div style={{ flex: 1 }}></div>
                         <Tooltip title={'用户'}>
                             <Avatar alt={'xx'} style={{ cursor: 'pointer', marginLeft: -12, marginRight: 20 }} onClick={e => {
                                 this.jump('/h/user');
-                            }} >U</Avatar>
+                            }} />
                         </Tooltip>
                     </Toolbar>
 
                 </AppBar>
-                <Drawer open={this.state.displayDrawer} onClose={e => this.drawerAction(false)}>
-                    <List>
-                        <ListItem button onClick={e => {
-                            this.jump('/h/register');
-                            this.drawerAction(false);
-                        }}>
-                            <ListItemText >设备注册</ListItemText>
-                        </ListItem>
-                        <ListItem button onClick={e => {
-                            this.jump('/h');
-                            this.drawerAction(false);
+                <Grid item xs={10} style={{ marginTop: '64px' }}>
+                    <Route exact path="/h" component={DeviceLog} />
+                    <Route exact path="/h/register" component={DtuList} />
+                    <Route exact path={'/h/user'} component={UserInfo} />
+                </Grid>
+                <Drawer open={displayDrawer} onClose={e => this.drawerAction(false)}>
 
-                        }}>
-                            <ListItemText >线上日志</ListItemText>
+                    <List className={'drawer-left'}>
+                        <ListItem button onClick={e => this.menuItemClick('/h/register')}>
+                            <ListItemIcon><DevicesIcon /></ListItemIcon>
+                            <ListItemText primary='设备注册' />
+                        </ListItem>
+                        <ListItem button onClick={e => this.menuItemClick('/h')}>
+                            <ListItemIcon><ListSharpIcon /></ListItemIcon>
+                            <ListItemText primary='上线日志' />
                         </ListItem>
 
                     </List>
                 </Drawer>
-                <Grid item xs={10} style={{ marginTop: '64px' }}>
-                    <Route exact path="/h" component={() => <DeviceLog title={this.setTitle} />} />
-                    <Route exact path="/h/register" component={() => <DtuList title={this.setTitle} />} />
-                    <Route exact path={'/h/user'} component={() => <UserInfo title={this.setTitle} />} />
-                </Grid>
+
             </Grid>
+
         );
     }
 }
