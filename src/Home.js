@@ -109,7 +109,7 @@ class Home extends React.Component {
 
     render() {
         const { title, displayDrawer } = this.state;
-        console.log('render home ', new Date());
+
         return (
             <Grid container justify={'center'}>
                 <AppBar>

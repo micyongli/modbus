@@ -1,5 +1,6 @@
 .dlg-content{
     padding: 8px;
+    width: 16em;
 }
 
 
@@ -7,3 +8,12 @@
     margin: 1em;
 }
 
+.tool-bar{
+    padding: 4px;
+    padding-bottom: 8px;
+}
+
+
+.tab-container{
+    padding: 32px;
+}

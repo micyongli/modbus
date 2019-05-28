@@ -47,7 +47,7 @@ class UserInfo extends React.Component {
         return (
 
             <Paper style={{ paddingTop: '8px' }}>
-                <Table padding={'default'}>
+                {/* <Table padding={'default'}>
                     <TableBody>
                         <TableRow>
                             <TableCell style={{ width: '35%' }} align={'right'}>登录ID</TableCell>
@@ -77,7 +77,7 @@ class UserInfo extends React.Component {
                     <DialogActions>
                         <Button variant={'outlined'} color={'primary'} onClick={this.newUser} >确定</Button>
                     </DialogActions>
-                </Dialog>
+                </Dialog> */}
             </Paper>
 
         );

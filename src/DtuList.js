@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    TextField, TablePagination, Fab,
+    TextField, TablePagination, Divider,
     Paper, Table, TableBody, TableCell,
     TableFooter, TableRow, TableHead, Button, Dialog,
     DialogActions, DialogContent, DialogTitle
@@ -9,6 +9,7 @@ import {
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import EditIcon from '@material-ui/icons/Edit';
+import RefreshIcon from '@material-ui/icons/RefreshSharp'
 import AccessibilityIcon from '@material-ui/icons/Accessibility';
 
 import './DtuList.css';
@@ -17,13 +18,13 @@ class DtuList extends React.Component {
 
     constructor(props) {
         super(props);
+        this.currentRecord = {};
     }
 
     state = {
         data: [],
         openDlg: false,
         edited: false,
-        record: null,
         pageInfo: {
             rowsPerPage: 8,
             count: 0,
@@ -31,6 +32,7 @@ class DtuList extends React.Component {
             currentPage: 0
         }
     };
+
 
     componentWillMount() {
         this.loadData();
@@ -67,26 +69,26 @@ class DtuList extends React.Component {
         });
     }
 
-    newLine = e => {
-        if (this.currentDTU) {
-            fetch('/api/dtu', { body: JSON.stringify({ id: this.currentDTU }), method: 'post', credentials: 'include', headers: { 'content-type': 'application/json' } })
-                .then(v => {
-                    if (v.status >= 200 && v.status < 300) {
-                        return;
-                    }
-                    throw new Error(v.statusText);
-                })
-                .then(() => {
-                    this.setState({ openDlg: false }, () => this.loadData());
+    create = e => {
 
-                })
-                .catch(e => {
-                    this.props.enqueueSnackbar(e.message, {
-                        variant: 'warning',
-                        autoHideDuration: 1500,
-                    });
+        fetch('/api/dtu', { body: JSON.stringify(this.getEditRecordValues()), method: 'post', credentials: 'include', headers: { 'content-type': 'application/json' } })
+            .then(v => {
+                if (v.status >= 200 && v.status < 300) {
+                    return;
+                }
+                throw new Error(v.statusText);
+            })
+            .then(() => {
+                this.setState({ openDlg: false }, () => this.loadData());
+
+            })
+            .catch(e => {
+                this.props.enqueueSnackbar(e.message, {
+                    variant: 'warning',
+                    autoHideDuration: 1500,
                 });
-        }
+            });
+
 
     }
 
@@ -116,11 +118,9 @@ class DtuList extends React.Component {
         return b;
     }
 
-    put = () => {
-        const { v } = this.state;
-        let newid = this.currentDTU;
-        let oldid = v;
-        if (newid === v) {
+    update = () => {
+
+        if (!this.editRecordRequireUpdate()) {
             this.props.enqueueSnackbar('无需更新!', {
                 variant: 'info',
                 autoHideDuration: 1500
@@ -128,7 +128,7 @@ class DtuList extends React.Component {
             return;
         }
         return fetch('/api/dtu', {
-            body: JSON.stringify({ newid, oldid }),
+            body: JSON.stringify(this.getEditRecordValues()),
             method: 'put',
             credentials: 'include',
             headers: { 'content-type': 'application/json' }
@@ -151,6 +151,7 @@ class DtuList extends React.Component {
             });
     }
 
+
     getCurrentRecord = (obj, id) => {
         if (obj) {
             return obj[id];
@@ -164,9 +165,48 @@ class DtuList extends React.Component {
     }
 
 
-    rwTester = e => {
+    /**编辑功能-开始 */
 
+    initEditRecord = () => {
+        this.currentRecord = Object.assign({});
     }
+
+    assignEditRecord = r => {
+        this.currentRecord = Object.assign({}, r, { oldVal: Object.freeze(Object.assign({}, r)) });
+    }
+
+
+    getEditRecord = id => {
+        return this.currentRecord[id];
+    }
+
+    setEditRecord = (id, val) => {
+        this.currentRecord[id] = val;
+        return val;
+    }
+
+    editRecordRequireUpdate = () => {
+        const { oldVal, ...newVal } = this.currentRecord;
+        for (let key in newVal) {
+            if (newVal[key] !== oldVal[key]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    getEditRecordValues = () => {
+        const { oldVal, ...newVal } = this.currentRecord;
+        let old = {};
+        if (typeof oldVal !== 'undefined') {
+            old = { old_device_id: oldVal['device_id'] }
+        }
+        return Object.assign({}, newVal, old);
+    }
+
+    /**编辑功能-结束 */
+
+
 
     render() {
         const { data, openDlg, edited, pageInfo } = this.state;
@@ -174,104 +214,127 @@ class DtuList extends React.Component {
         return (
 
             <Paper style={{ paddingTop: '8px' }}>
-                <Table size={'small'}>
-                    <TableHead>
+                <div className='tool-bar' >
+                    <Button onClick={e => this.loadData()} color='primary'><RefreshIcon /></Button>
+                    <Button onClick={e => this.setState({ edited: false, openDlg: true })} color='primary'><AddIcon /></Button>
+                </div>
+                <Divider />
+                <div className='tab-container'>
+                    <Table size={'small'}>
+                        <TableHead>
 
-                        <TableCell>
-                            <Fab onClick={e => this.setState({ edited: false, openDlg: true })} size="small" color="secondary" aria-label="Add" >
-                                <AddIcon />
-                            </Fab>
-                        </TableCell>
+                            <TableRow>
+                                <TableCell align={'center'}>在线状态</TableCell>
+                                <TableCell align={'center'}>DTU标识</TableCell>
+                                <TableCell align={'center'}>使用描述</TableCell>
+                                <TableCell align={'center'}>创建日期</TableCell>
+                                <TableCell align={'center'}>操作</TableCell>
+                            </TableRow>
 
-                        <TableRow>
-                            <TableCell align={'center'}>在线状态</TableCell>
-                            <TableCell align={'center'}>DTU标识</TableCell>
-                            <TableCell align={'center'}>使用描述</TableCell>
-                            <TableCell align={'center'}>创建日期</TableCell>
-                            <TableCell align={'center'}>操作</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                            data.map((v, inx) => {
-                                return (
-                                    <TableRow key={inx}>
-                                        <TableCell align={'center'}>{v['state']}</TableCell>
-                                        <TableCell align={'center'}>{v['device_id']}</TableCell>
-                                        <TableCell align={'center'}>{v['device_desc']}</TableCell>
-                                        <TableCell align={'center'}>{v['create_time']}</TableCell>
-                                        <TableCell align={'center'}>
-                                            <Fab onClick={e => {
-                                                const id = v['device_id'];
-                                                if (confirm('确定要删除？')) {
-                                                    this.delete(id);
-                                                }
-                                            }} size="small" color="default" aria-label="Edit" >
-                                                <RemoveIcon />
-                                            </Fab>
-                                            <Fab
-                                                style={{ marginLeft: '8px' }}
-                                                onClick={e => {
-                                                    this.currentDTU = Object.assign({}, v);
-                                                    this.setState({ edited: true, openDlg: true });
-                                                }} size="small" color="default" aria-label="Remove" >
-                                                <EditIcon />
-                                            </Fab>
-                                            <Fab
-                                                style={{ marginLeft: '8px' }}
-                                                onClick={this.rwTester} size="small" color="default" aria-label="Remove" >
-                                                <AccessibilityIcon />
-                                            </Fab>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })
-                        }
+                        </TableHead>
+                        <TableBody>
 
-                    </TableBody>
-                    <TableFooter>
-                        <TableRow>
+                            {
+                                data.map((v, inx) => {
+                                    return (
+                                        <TableRow key={inx}>
+                                            <TableCell align={'center'}>{v['status'] ? '在线' : '-'}</TableCell>
+                                            <TableCell align={'center'}>{v['device_id']}</TableCell>
+                                            <TableCell align={'center'}>{v['device_desc']}</TableCell>
+                                            <TableCell align={'center'}>{v['create_time']}</TableCell>
+                                            <TableCell align={'center'}>
+                                                <Button
+                                                    onClick={e => {
+                                                        const id = v['device_id'];
+                                                        if (confirm('确定要删除？')) {
+                                                            this.delete(id);
+                                                        }
+                                                    }}
+                                                    size="small"
+                                                    color="primary"
+                                                >
+                                                    <RemoveIcon />
+                                                </Button>
+                                                <Button
+                                                    style={{ marginLeft: '8px' }}
+                                                    onClick={e => {
+                                                        this.assignEditRecord(v);
+                                                        this.setState({ edited: true, openDlg: true });
+                                                    }}
+                                                    size="small"
+                                                    color="primary"
+                                                >
+                                                    <EditIcon />
+                                                </Button>
+                                                <Button
+                                                    style={{ marginLeft: '8px' }}
+                                                    onClick={this.rwTester}
+                                                    size="small"
+                                                    color="primary"
+                                                >
+                                                    <AccessibilityIcon />
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
+                            }
 
-                            <TablePagination
-                                rowsPerPageOptions={[8]}
-                                count={pageInfo.count}
-                                page={pageInfo.currentPage}
-                                rowsPerPage={pageInfo.rowsPerPage}
-                                onChangePage={
-                                    (e, num) => {
-                                        this.loadPageData(pageInfo.rowsPerPage, num, v => {
-                                            const { count, data } = v;
-                                            const newPage = Object.assign({}, this.state.pageInfo, { count });
-                                            newPage.currentPage = num;
-                                            this.setState({ data: data, pageInfo: newPage });
+                        </TableBody>
+                        <TableFooter>
+                            <TableRow>
 
-                                        })
+                                <TablePagination
+                                    rowsPerPageOptions={[8]}
+                                    count={pageInfo.count}
+                                    page={pageInfo.currentPage}
+                                    rowsPerPage={pageInfo.rowsPerPage}
+                                    onChangePage={
+                                        (e, num) => {
+                                            this.loadPageData(pageInfo.rowsPerPage, num, v => {
+                                                const { count, data } = v;
+                                                const newPage = Object.assign({}, this.state.pageInfo, { count });
+                                                newPage.currentPage = num;
+                                                this.setState({ data: data, pageInfo: newPage });
+                                            })
+                                        }
                                     }
-                                }
 
-                                onChangeRowsPerPage={
-                                    (e) => {
-                                        const { value } = e.target;
-                                        const newPageInfo = Object.assign({}, pageInfo);
-                                        newPageInfo.rowsPerPage = value;
-                                        this.setState({ pageInfo: newPageInfo });
+                                    onChangeRowsPerPage={
+                                        (e) => {
+                                            const { value } = e.target;
+                                            const newPageInfo = Object.assign({}, pageInfo);
+                                            newPageInfo.rowsPerPage = value;
+                                            this.setState({ pageInfo: newPageInfo });
+                                        }
                                     }
-                                }
 
-                            >
-                            </TablePagination>
+                                >
+                                </TablePagination>
 
-                        </TableRow>
-                    </TableFooter>
-                </Table>
+                            </TableRow>
+                        </TableFooter>
+                    </Table>
+                </div>
                 <Dialog open={openDlg} onClose={e => this.setState({ openDlg: false })}>
-                    <DialogTitle >{edited ? '编辑' : '添行'}</DialogTitle>
+                    <DialogTitle >{edited ? '编辑' : '添加'}</DialogTitle>
                     <DialogContent>
+
                         <div className={'dlg-content'}>
-                            <TextField margin={'normal'} fullWidth={true} variant='filled' defaultValue={edited ? this.getCurrentRecord(this.currentDTU, 'device_id') : ''} onChange={v => this.currentDTU = v.target.value} label={'DTU标识'} />
-
-
-                            <TextField margin={'normal'} fullWidth={true} variant='filled' defaultValue={edited ? this.getCurrentRecord(this.currentDTU, 'device_desc') : ''} onChange={v => this.currentDesc = v.target.value} label={'DTU描述'} />
+                            <TextField
+                                margin={'normal'}
+                                fullWidth={true}
+                                // variant='filled'
+                                defaultValue={edited ? this.getEditRecord('device_id') : ''}
+                                onChange={v => this.setEditRecord('device_id', v.target.value)}
+                                label={'DTU标识'} />
+                            <TextField
+                                margin={'normal'}
+                                fullWidth={true}
+                                // variant='filled'
+                                defaultValue={edited ? this.getEditRecord('device_desc') : ''}
+                                onChange={v => this.setEditRecord('device_desc', v.target.value)}
+                                label={'DTU描述'} />
 
                         </div>
                     </DialogContent>
@@ -279,14 +342,12 @@ class DtuList extends React.Component {
                         <Button onClick={
                             e => {
                                 const { edited } = this.state;
-                                if (edited) {
-                                    this.put();
-                                } else {
-                                    this.newLine();
-                                }
+                                edited ? this.update() : this.create();
                             }
                         }>确定</Button>
-                        <Button onClick={e => this.setState({ openDlg: false })}>取消</Button>
+                        <Button
+                            onClick={e => this.setState({ openDlg: false })}
+                        >取消</Button>
                     </DialogActions>
                 </Dialog>
 

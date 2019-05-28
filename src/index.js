@@ -25,4 +25,11 @@ class App extends React.Component {
 
 const AppRoot = withRouter(App);
 
-ReactDOM.render(<Router> <SnackbarProvider hideIconVariant={true}><AppRoot /></SnackbarProvider></Router>, document.getElementById('app'));
+ReactDOM.render(
+    <Router>
+        <SnackbarProvider hideIconVariant={true}>
+            <AppRoot />
+        </SnackbarProvider>
+    </Router>,
+    document.getElementById('app')
+);

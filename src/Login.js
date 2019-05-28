@@ -1,7 +1,13 @@
 import React from 'react';
 
-import { Input, Button, Paper, Grid, FormControl, FormLabel, Tab, Tabs, AppBar } from '@material-ui/core';
+import { Input, Button, Paper, Grid, FormControl, FormLabel, TextField } from '@material-ui/core';
 
+import './Login.css';
+
+
+const submitBtn = {
+    marginTop: '2.5em'
+}
 export default class Login extends React.PureComponent {
 
     submit = (e) => {
@@ -42,25 +48,21 @@ export default class Login extends React.PureComponent {
     render() {
 
         return (
-            <Grid style={{ padding: '2px', paddingTop: '5em' }} container justify={'center'}>
-
-
-                <Paper style={{ width: '25em', margin: 0 }} >
-                   
-                    <div style={{ marginTop: '1em', padding: '4em' }}>
+            <Grid className='login-container' container justify={'center'}>
+                <Paper className="login-paper" >
+                    <div className="login-div">
                         <form onSubmit={this.submit}>
                             <FormControl margin={'normal'} fullWidth={true}>
-                                <FormLabel>帐号</FormLabel>
-                                <Input onChange={v => this.user = v.target.value} autoComplete='off' name={'user'} />
+
+                                <TextField label={'帐号'} onChange={v => this.user = v.target.value} autoComplete='off' name={'user'} />
                             </FormControl>
                             <FormControl margin={'normal'} fullWidth={true}>
-                                <FormLabel>密码</FormLabel>
-                                <Input type="password" onChange={v => this.pwd = v.target.value} autoComplete='off' name={'pwd'} />
-                            </FormControl>
-                            <FormControl margin={'normal'} fullWidth={true} >
-                                <Button bgcolor={'primary.main'}  color={'primary'} type="submit" >登录</Button>
-                            </FormControl>
 
+                                <TextField type="password" label={'密码'} onChange={v => this.pwd = v.target.value} autoComplete='off' name={'pwd'} />
+                            </FormControl>
+                            <FormControl style={submitBtn} margin={'normal'} fullWidth={true} >
+                                <Button bgcolor={'primary.main'} color='primary' variant='contained' type="submit" >登录</Button>
+                            </FormControl>
                         </form>
                     </div>
                 </Paper>
