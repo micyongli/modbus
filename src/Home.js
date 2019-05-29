@@ -14,6 +14,8 @@ import './Home.css';
 
 import { getTitleByPath } from './RouteConfig';
 
+import ErrorPage from './ErrorPage';
+
 
 class Home extends React.Component {
 
@@ -33,8 +35,13 @@ class Home extends React.Component {
         const { location } = this.props.history;
         const { pathname } = location;
         const mapTile = getTitleByPath(pathname);
-        if (mapTile)
+        if (mapTile) {
             this.setTitle(mapTile);
+            return;
+        }
+        this.setTitle('Error Page');
+        this.props.history.push('/h/error');
+
     }
 
     shouldComponentUpdate(p, s) {
@@ -131,6 +138,7 @@ class Home extends React.Component {
                     <Route exact path="/h" component={DeviceLog} />
                     <Route exact path="/h/register" component={DtuList} />
                     <Route exact path={'/h/user'} component={UserInfo} />
+                    <Route exact path={'/h/error'} component={ErrorPage} />
                 </Grid>
                 <Drawer open={displayDrawer} onClose={e => this.drawerAction(false)}>
 

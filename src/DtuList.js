@@ -12,6 +12,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import RefreshIcon from '@material-ui/icons/RefreshSharp'
 import AccessibilityIcon from '@material-ui/icons/Accessibility';
 
+import VarTester from './VarTester';
+
 import './DtuList.css';
 
 class DtuList extends React.Component {
@@ -30,7 +32,8 @@ class DtuList extends React.Component {
             count: 0,
             page: 0,
             currentPage: 0
-        }
+        },
+        varTesterVisible: false
     };
 
 
@@ -114,7 +117,8 @@ class DtuList extends React.Component {
     shouldComponentUpdate(nextProps, nextStat) {
         const b = nextStat.openDlg !== this.state.openDlg
             || nextStat.data !== this.state.data
-            || this.state.pageInfo != nextStat.pageInfo;
+            || this.state.pageInfo != nextStat.pageInfo ||
+            nextStat.varTesterVisible !== this.state.varTesterVisible;
         return b;
     }
 
@@ -204,7 +208,22 @@ class DtuList extends React.Component {
         return Object.assign({}, newVal, old);
     }
 
+    switchVarTesterDlg = selEl => {
+        const { varTesterVisible } = this.state;
+        const v = !varTesterVisible;
+        if (!selEl)
+            this.setState({ varTesterVisible: v });
+        else {
+            this.setState({ selEl, varTesterVisible: v });
+        }
+    }
+
     /**编辑功能-结束 */
+
+    getDev = () => {
+        const { selEl } = this.state;
+        return Object.assign({}, selEl);
+    }
 
 
 
@@ -238,7 +257,7 @@ class DtuList extends React.Component {
                                 data.map((v, inx) => {
                                     return (
                                         <TableRow key={inx}>
-                                            <TableCell align={'center'}>{v['status'] ? '在线' : '-'}</TableCell>
+                                            <TableCell align={'center'}>{v['online'] ? '在线' : '-'}</TableCell>
                                             <TableCell align={'center'}>{v['device_id']}</TableCell>
                                             <TableCell align={'center'}>{v['device_desc']}</TableCell>
                                             <TableCell align={'center'}>{v['create_time']}</TableCell>
@@ -268,7 +287,7 @@ class DtuList extends React.Component {
                                                 </Button>
                                                 <Button
                                                     style={{ marginLeft: '8px' }}
-                                                    onClick={this.rwTester}
+                                                    onClick={e => this.switchVarTesterDlg(Object.assign({}, v))}
                                                     size="small"
                                                     color="primary"
                                                 >
@@ -351,6 +370,8 @@ class DtuList extends React.Component {
                     </DialogActions>
                 </Dialog>
 
+
+                <VarTester getDev={this.getDev} open={this.state.varTesterVisible} onClose={this.switchVarTesterDlg} />
             </Paper >
         );
     }
