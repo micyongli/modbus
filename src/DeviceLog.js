@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, InputLabel, Paper, Table, TableBody, TableCell, TableFooter, TableRow, TableHead, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+import {  Paper, Table, TableBody, TableCell, TableFooter, TableRow, TableHead } from '@material-ui/core';
 
 class DeviceLog extends React.Component {
 

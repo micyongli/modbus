@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Input, Button, Paper, Grid, FormControl, FormLabel, TextField } from '@material-ui/core';
+import {  Button, Paper, Grid, FormControl, TextField } from '@material-ui/core';
 
 import './Login.css';
 

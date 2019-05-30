@@ -4,8 +4,7 @@ import {
     TextField, Select, MenuItem, Divider,
     Button, Dialog,
     FormControlLabel,
-    Radio,
-    RadioGroup, DialogContent, DialogTitle
+    Radio, DialogContent, DialogTitle
 } from '@material-ui/core';
 
 import './VarTester.css';
@@ -71,7 +70,7 @@ class VarTester extends React.Component {
                     this.txt.value = v.data[0];
                 }
                 this.props.enqueueSnackbar('ok', {
-                    variant: 'success',
+                    variant: 'success1',
                     autoHideDuration: 1000,
                 });
 
