@@ -33,7 +33,7 @@ class VarTester extends React.Component {
                 value: 0
             }
         };
-        this.alph = React.createRef();
+
     }
 
     componentWillReceiveProps(props) {
@@ -67,10 +67,11 @@ class VarTester extends React.Component {
                 if (v.code !== 0) {
                     throw new Error(v.message);
                 }
-                const el = this.alph.current;
+                const el = this.alph;
                 let xs = parseFloat(el.value);
+
                 if (isNaN(xs)) {
-                    this.alph.current.value = 1;
+                    this.alph.value = 1;
                     xs = 1;
                 }
                 if (opType === 0) {
@@ -151,7 +152,7 @@ class VarTester extends React.Component {
                         margin={'normal'}
                         fullWidth={true}
                         defaultValue={formVal.alph}
-                        ref={this.alph}
+                        inputRef={ref => this.alph = ref}
                         onChange={v => {
                             this.setState({ formVal: Object.assign({}, formVal, { alph: v.target.value }) });
                         }}
@@ -161,18 +162,25 @@ class VarTester extends React.Component {
                         <FormControlLabel label='读' control={
                             <Radio
                                 checked={formVal.opType === 0}
-                                onChange={e => { this.setState({ formVal: Object.assign({}, formVal, { opType: 0 }) }) }} />
+                                onChange={e => {
+                                    this.txt.value = ' ';
+                                    this.setState({ formVal: Object.assign({}, formVal, { opType: 0 }) });
+                                }} />
                         } />
                         <FormControlLabel label='写' control={
                             <Radio
                                 checked={formVal.opType === 1}
-                                onChange={e => { this.setState({ formVal: Object.assign({}, formVal, { opType: 1 }) }) }} />
+                                onChange={
+                                    e => {
+                                        this.setState({ formVal: Object.assign({}, formVal, { opType: 1 }) });
+                                    }
+                                } />
                         } />
                     </div>
                     <TextField
                         margin={'normal'}
                         fullWidth={true}
-                        defaultValue={''}
+                        defaultValue={' '}
                         disabled={formVal.opType === 0}
                         inputRef={ref => this.txt = ref}
                         onChange={v => {
