@@ -20,7 +20,7 @@ const testerBtn = {
 class VarTester extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props)
+
         const { open } = props;
         this.state = {
             open: !!open,
@@ -33,6 +33,7 @@ class VarTester extends React.Component {
                 value: 0
             }
         };
+        this.alph = React.createRef();
     }
 
     componentWillReceiveProps(props) {
@@ -66,11 +67,17 @@ class VarTester extends React.Component {
                 if (v.code !== 0) {
                     throw new Error(v.message);
                 }
+                const el = this.alph.current;
+                let xs = parseFloat(el.value);
+                if (isNaN(xs)) {
+                    this.alph.current.value = 1;
+                    xs = 1;
+                }
                 if (opType === 0) {
-                    this.txt.value = v.data[0];
+                    this.txt.value = xs * v.data[0];
                 }
                 this.props.enqueueSnackbar('ok', {
-                    variant: 'success1',
+                    variant: 'success',
                     autoHideDuration: 1000,
                 });
 
@@ -144,10 +151,11 @@ class VarTester extends React.Component {
                         margin={'normal'}
                         fullWidth={true}
                         defaultValue={formVal.alph}
+                        ref={this.alph}
                         onChange={v => {
                             this.setState({ formVal: Object.assign({}, formVal, { alph: v.target.value }) });
                         }}
-                        label={'因子'} />
+                        label={'系数'} />
 
                     <div style={{ marginTop: '10px' }}>
                         <FormControlLabel label='读' control={
@@ -186,4 +194,5 @@ class VarTester extends React.Component {
 }
 
 import { withSnackbar } from 'notistack';
+import { timingSafeEqual } from 'crypto';
 export default withSnackbar(VarTester);
