@@ -194,5 +194,4 @@ class VarTester extends React.Component {
 }
 
 import { withSnackbar } from 'notistack';
-import { timingSafeEqual } from 'crypto';
 export default withSnackbar(VarTester);
